@@ -46,6 +46,7 @@ body {
 .score-board {
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
     font-size: 1.2em;
     font-weight: bold;
 }
@@ -132,6 +133,23 @@ body {
     font-size: 1.2em;
     margin-top: 20px;
     animation: blink 1s ease-in-out infinite;
+}
+
+.high-score span {
+    color: #00ff7f;
+    text-shadow: 0 0 10px #00ff7f;
+}
+
+.combo span {
+    color: #ff8c00;
+    text-shadow: 0 0 10px #ff8c00;
+}
+
+#newRecordMessage {
+    font-size: 1.3em;
+    color: #ffd700;
+    text-shadow: 0 0 15px #ffd700;
+    margin-bottom: 15px;
 }
 
 @keyframes blink {

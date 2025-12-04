@@ -9,6 +9,14 @@ let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let score = 0;
 let lives = 3;
 let level = 1;
+let highScore = 0;
+const HIGH_SCORE_KEY = 'flashyInvaderHighScore';
+
+// コンボ関連
+let combo = 0;
+let maxCombo = 0;
+let lastHitTime = 0;
+const COMBO_TIMEOUT = 2000; // ms
 
 // プレイヤー
 const player = {
@@ -83,6 +91,28 @@ function playLevelUpSound() {
         setTimeout(() => {
             playSound(300 + i * 100, 0.1, 'sine', 0.2);
         }, i * 50);
+    }
+}
+
+// ハイスコア読み込み
+function loadHighScore() {
+    const stored = localStorage.getItem(HIGH_SCORE_KEY);
+    if (stored !== null) {
+        highScore = parseInt(stored, 10) || 0;
+    }
+    document.getElementById('highScore').textContent = highScore;
+}
+
+// ハイスコア更新
+function updateHighScoreIfNeeded() {
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem(HIGH_SCORE_KEY, String(highScore));
+        document.getElementById('highScore').textContent = highScore;
+        const msg = document.getElementById('newRecordMessage');
+        if (msg) {
+            msg.classList.remove('hidden');
+        }
     }
 }
 
@@ -313,11 +343,26 @@ function updateBullets() {
                 // 敵を倒した
                 enemy.alive = false;
                 playerBullets.splice(i, 1);
-                score += 10;
+
+                const now = performance.now();
+                if (now - lastHitTime <= COMBO_TIMEOUT) {
+                    combo++;
+                } else {
+                    combo = 1;
+                }
+                lastHitTime = now;
+                if (combo > maxCombo) {
+                    maxCombo = combo;
+                }
+
+                const baseScore = 10;
+                const comboBonus = baseScore * (combo - 1);
+                score += baseScore + comboBonus;
                 createParticles(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color);
                 createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
                 playExplosionSound();
                 updateScore();
+                updateComboDisplay();
                 break;
             }
         }
@@ -399,6 +444,13 @@ function updateScore() {
     }
 }
 
+// コンボ表示更新
+function updateComboDisplay() {
+    const comboEl = document.getElementById('combo');
+    if (!comboEl) return;
+    comboEl.textContent = combo;
+}
+
 // 残機更新
 function updateLives() {
     document.getElementById('lives').textContent = lives;
@@ -408,6 +460,7 @@ function updateLives() {
 function gameOver() {
     gameState = 'gameOver';
     document.getElementById('finalScore').textContent = score;
+    updateHighScoreIfNeeded();
     document.getElementById('gameOver').classList.remove('hidden');
 }
 
@@ -422,12 +475,20 @@ function restartGame() {
     enemyBullets = [];
     particles = [];
     explosions = [];
+    combo = 0;
+    maxCombo = 0;
+    lastHitTime = 0;
     player.x = canvas.width / 2 - 25;
     initEnemies();
     updateScore();
     updateLives();
+    updateComboDisplay();
     document.getElementById('level').textContent = level;
     document.getElementById('gameOver').classList.add('hidden');
+    const msg = document.getElementById('newRecordMessage');
+    if (msg) {
+        msg.classList.add('hidden');
+    }
     document.getElementById('startScreen').classList.add('hidden');
 }
 
@@ -484,4 +545,5 @@ document.getElementById('restartBtn').addEventListener('click', restartGame);
 
 // ゲーム初期化
 initEnemies();
+loadHighScore();
 gameLoop();
