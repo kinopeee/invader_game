@@ -14,15 +14,18 @@
                 <div class="score">スコア: <span id="score">0</span></div>
                 <div class="lives">残機: <span id="lives">3</span></div>
                 <div class="level">レベル: <span id="level">1</span></div>
+                <div class="high-score">ハイスコア: <span id="highScore">0</span></div>
             </div>
         </div>
         <canvas id="gameCanvas"></canvas>
         <div class="controls">
-            <p>← → キーで移動 | スペースキーで発射</p>
+            <p>← → キーで移動 | スペースキーで発射 | Pキーで一時停止</p>
+            <p class="hint">💡 敵を連続で倒すとコンボボーナス！パワーアップアイテムを集めよう！</p>
         </div>
         <div id="gameOver" class="game-over hidden">
             <h2>ゲームオーバー！</h2>
             <p>最終スコア: <span id="finalScore">0</span></p>
+            <p id="newRecord" class="new-record hidden">🎉 新記録達成！</p>
             <button id="restartBtn">もう一度プレイ</button>
         </div>
         <div id="startScreen" class="start-screen">

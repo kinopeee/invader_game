@@ -46,8 +46,10 @@ body {
 .score-board {
     display: flex;
     justify-content: space-around;
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-weight: bold;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .score-board span {
@@ -69,6 +71,12 @@ body {
     padding: 10px;
     border-radius: 0 0 10px 10px;
     font-size: 0.9em;
+}
+
+.controls .hint {
+    margin-top: 5px;
+    color: #ffd700;
+    font-size: 0.85em;
 }
 
 .game-over, .start-screen {
@@ -105,6 +113,14 @@ body {
 .game-over p {
     font-size: 1.5em;
     margin-bottom: 20px;
+}
+
+.new-record {
+    color: #ffd700;
+    font-size: 1.8em;
+    font-weight: bold;
+    text-shadow: 0 0 20px #ffd700;
+    animation: pulse 1s ease-in-out infinite;
 }
 
 #restartBtn {
