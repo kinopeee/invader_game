@@ -12,6 +12,7 @@
             <h1>🌟 ド派手インベーダーゲーム 🌟</h1>
             <div class="score-board">
                 <div class="score">スコア: <span id="score">0</span></div>
+                <div class="high-score">ハイスコア: <span id="highScore">0</span></div>
                 <div class="lives">残機: <span id="lives">3</span></div>
                 <div class="level">レベル: <span id="level">1</span></div>
             </div>
@@ -19,15 +20,36 @@
         <canvas id="gameCanvas"></canvas>
         <div class="controls">
             <p>← → キーで移動 | スペースキーで発射</p>
+            <div class="mobile-controls">
+                <button id="leftBtn" class="control-btn">←</button>
+                <button id="shootBtn" class="control-btn">発射</button>
+                <button id="rightBtn" class="control-btn">→</button>
+            </div>
         </div>
         <div id="gameOver" class="game-over hidden">
             <h2>ゲームオーバー！</h2>
             <p>最終スコア: <span id="finalScore">0</span></p>
+            <p id="newHighScore" class="new-high-score hidden">🎉 新記録達成！ 🎉</p>
             <button id="restartBtn">もう一度プレイ</button>
         </div>
         <div id="startScreen" class="start-screen">
             <h2>ド派手インベーダーゲーム</h2>
-            <p>スペースキーでスタート</p>
+            <div class="difficulty-select">
+                <h3>難易度を選択:</h3>
+                <button class="difficulty-btn" data-difficulty="easy">イージー</button>
+                <button class="difficulty-btn selected" data-difficulty="normal">ノーマル</button>
+                <button class="difficulty-btn" data-difficulty="hard">ハード</button>
+            </div>
+            <p>スペースキーまたはタップでスタート</p>
+            <div class="features">
+                <h3>🎮 ゲームの特徴:</h3>
+                <ul>
+                    <li>🔫 パワーアップ: 速射、3方向弾、シールド</li>
+                    <li>⚡ コンボシステム: 連続撃破でスコア最大5倍!</li>
+                    <li>👾 ボス戦: 5レベルごとに強敵出現!</li>
+                    <li>🏆 ハイスコア記録機能</li>
+                </ul>
+            </div>
         </div>
     </div>
     <script src="game.js"></script>
