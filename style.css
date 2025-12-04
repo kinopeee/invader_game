@@ -6,12 +6,36 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+}
+
+/* 背景アニメーション */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+    animation: bgPulse 10s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes bgPulse {
+    0% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 .game-container {
@@ -20,11 +44,12 @@ body {
 }
 
 .header {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     color: #fff;
     padding: 20px;
     border-radius: 10px 10px 0 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header h1 {
@@ -46,8 +71,16 @@ body {
 .score-board {
     display: flex;
     justify-content: space-around;
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-weight: bold;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.score-board > div {
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
 }
 
 .score-board span {
@@ -55,20 +88,37 @@ body {
     text-shadow: 0 0 10px #ffd700;
 }
 
+.high-score span {
+    color: #ff6600 !important;
+    text-shadow: 0 0 10px #ff6600 !important;
+}
+
 #gameCanvas {
     background: #000;
     border: 3px solid #fff;
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+                inset 0 0 100px rgba(0, 0, 0, 0.5);
     display: block;
     margin: 0 auto;
 }
 
 .controls {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     color: #fff;
-    padding: 10px;
+    padding: 15px;
     border-radius: 0 0 10px 10px;
     font-size: 0.9em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none;
+}
+
+.controls p {
+    margin: 5px 0;
+}
+
+.power-up-legend {
+    color: #aaa;
+    font-size: 0.85em;
 }
 
 .game-over, .start-screen {
@@ -76,18 +126,20 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.98);
     color: #fff;
     padding: 40px;
     border-radius: 20px;
     border: 3px solid #ff00ff;
-    box-shadow: 0 0 50px rgba(255, 0, 255, 0.8);
+    box-shadow: 0 0 50px rgba(255, 0, 255, 0.8),
+                0 0 100px rgba(255, 0, 255, 0.4);
     z-index: 1000;
     text-align: center;
+    min-width: 350px;
 }
 
 .game-over h2, .start-screen h2 {
-    font-size: 3em;
+    font-size: 2.5em;
     margin-bottom: 20px;
     text-shadow: 0 0 20px #ff00ff;
     animation: pulse 1s ease-in-out infinite;
@@ -98,40 +150,112 @@ body {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.1);
+        transform: scale(1.05);
     }
 }
 
-.game-over p {
+.new-high-score {
     font-size: 1.5em;
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffd700;
     margin-bottom: 20px;
+    animation: rainbow 2s linear infinite;
+}
+
+@keyframes rainbow {
+    0% { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+    16% { color: #ff8800; text-shadow: 0 0 20px #ff8800; }
+    33% { color: #ffff00; text-shadow: 0 0 20px #ffff00; }
+    50% { color: #00ff00; text-shadow: 0 0 20px #00ff00; }
+    66% { color: #00ffff; text-shadow: 0 0 20px #00ffff; }
+    83% { color: #ff00ff; text-shadow: 0 0 20px #ff00ff; }
+    100% { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+}
+
+.final-stats {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.final-stats p {
+    font-size: 1.3em;
+    margin: 10px 0;
+}
+
+.final-stats span {
+    color: #00ffff;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ffff;
+}
+
+.start-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.start-info p {
+    text-align: center;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #ffd700;
+}
+
+.start-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.start-info li {
+    padding: 8px 0;
+    padding-left: 25px;
+    position: relative;
+}
+
+.start-info li::before {
+    content: '▶';
+    position: absolute;
+    left: 0;
+    color: #00ffff;
 }
 
 #restartBtn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     border: none;
-    padding: 15px 30px;
-    font-size: 1.2em;
+    padding: 15px 40px;
+    font-size: 1.3em;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 #restartBtn:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8);
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.8);
+}
+
+#restartBtn:active {
+    transform: scale(1.05);
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
-.start-screen p {
-    font-size: 1.2em;
+.start-screen .blink {
+    font-size: 1.3em;
     margin-top: 20px;
     animation: blink 1s ease-in-out infinite;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
 }
 
 @keyframes blink {
@@ -139,6 +263,37 @@ body {
         opacity: 1;
     }
     50% {
-        opacity: 0.5;
+        opacity: 0.3;
+    }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 850px) {
+    .game-container {
+        transform: scale(0.8);
+        transform-origin: center center;
+    }
+    
+    .header h1 {
+        font-size: 1.8em;
+    }
+    
+    .score-board {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 650px) {
+    .game-container {
+        transform: scale(0.6);
+    }
+    
+    .game-over, .start-screen {
+        min-width: 280px;
+        padding: 25px;
+    }
+    
+    .game-over h2, .start-screen h2 {
+        font-size: 1.8em;
     }
 }

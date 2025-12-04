@@ -12,22 +12,42 @@
             <h1>🌟 ド派手インベーダーゲーム 🌟</h1>
             <div class="score-board">
                 <div class="score">スコア: <span id="score">0</span></div>
+                <div class="high-score">ハイスコア: <span id="highScore">0</span></div>
                 <div class="lives">残機: <span id="lives">3</span></div>
                 <div class="level">レベル: <span id="level">1</span></div>
             </div>
         </div>
         <canvas id="gameCanvas"></canvas>
         <div class="controls">
-            <p>← → キーで移動 | スペースキーで発射</p>
+            <p>← → キーで移動 | スペースキーで発射（長押しで連射）</p>
+            <p class="power-up-legend">
+                🛡️シールド ⚡連射 💥拡散弾 🔫レーザー ❤️残機+1 💣ボム
+            </p>
         </div>
         <div id="gameOver" class="game-over hidden">
             <h2>ゲームオーバー！</h2>
-            <p>最終スコア: <span id="finalScore">0</span></p>
+            <div id="newHighScore" class="new-high-score hidden">
+                🎉 ハイスコア更新！ 🎉
+            </div>
+            <div class="final-stats">
+                <p>最終スコア: <span id="finalScore">0</span></p>
+                <p>最高コンボ: <span id="maxCombo">0</span></p>
+                <p>到達レベル: <span id="finalLevel">1</span></p>
+            </div>
             <button id="restartBtn">もう一度プレイ</button>
         </div>
         <div id="startScreen" class="start-screen">
             <h2>ド派手インベーダーゲーム</h2>
-            <p>スペースキーでスタート</p>
+            <div class="start-info">
+                <p>🎮 ゲーム説明 🎮</p>
+                <ul>
+                    <li>← → で移動、スペースで攻撃</li>
+                    <li>敵を連続で倒してコンボを稼ごう！</li>
+                    <li>パワーアップアイテムをゲットしよう！</li>
+                    <li>3レベルごとにボスが出現！</li>
+                </ul>
+            </div>
+            <p class="blink">スペースキーでスタート</p>
         </div>
     </div>
     <script src="game.js"></script>
