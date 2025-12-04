@@ -46,8 +46,10 @@ body {
 .score-board {
     display: flex;
     justify-content: space-around;
-    font-size: 1.2em;
+    font-size: 1em;
     font-weight: bold;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .score-board span {
@@ -69,6 +71,12 @@ body {
     padding: 10px;
     border-radius: 0 0 10px 10px;
     font-size: 0.9em;
+}
+
+.power-up-info {
+    margin-top: 5px;
+    font-size: 0.85em;
+    color: #ffd700;
 }
 
 .game-over, .start-screen {
@@ -141,4 +149,13 @@ body {
     50% {
         opacity: 0.5;
     }
+}
+
+.new-high-score {
+    color: #ffd700;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-shadow: 0 0 20px #ffd700;
+    animation: pulse 1s ease-in-out infinite;
+    margin: 15px 0;
 }
