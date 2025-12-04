@@ -9,6 +9,16 @@ let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let score = 0;
 let lives = 3;
 let level = 1;
+let highScore = 0;
+
+// コンボ関連
+let comboCount = 0;
+let comboMultiplier = 1;
+let lastKillTime = 0;
+const COMBO_RESET_TIME = 2000; // ms
+
+// ハイスコア用キー
+const HIGH_SCORE_KEY = 'flashy_invader_high_score';
 
 // プレイヤー
 const player = {
@@ -35,6 +45,12 @@ let enemySpeed = 1;
 // パーティクルエフェクト
 let particles = [];
 let explosions = [];
+
+// パワーアップ
+let powerUps = [];
+let activePowerUp = null; // 例: 'triple'
+let powerUpEndTime = 0;
+const POWER_UP_DURATION = 10000; // ms
 
 // キー入力
 const keys = {};
@@ -86,6 +102,10 @@ function playLevelUpSound() {
     }
 }
 
+function playPowerUpSound() {
+    playSound(600, 0.15, 'triangle', 0.4);
+}
+
 // 敵の初期化
 function initEnemies() {
     enemies = [];
@@ -103,6 +123,21 @@ function initEnemies() {
                 alive: true
             });
         }
+    }
+}
+
+// パワーアップ生成
+function spawnPowerUp(x, y) {
+    // 一定確率で出現
+    if (Math.random() < 0.15) {
+        powerUps.push({
+            x: x,
+            y: y,
+            radius: 10,
+            vy: 2,
+            color: '#00ff7f',
+            type: 'triple'
+        });
     }
 }
 
@@ -206,6 +241,19 @@ function drawBullets() {
     });
 }
 
+// パワーアップの描画
+function drawPowerUps() {
+    powerUps.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    });
+}
+
 // パーティクルの描画と更新
 function updateParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -256,6 +304,30 @@ function updateExplosions() {
     }
 }
 
+// パワーアップの更新
+function updatePowerUps() {
+    for (let i = powerUps.length - 1; i >= 0; i--) {
+        const p = powerUps[i];
+        p.y += p.vy;
+
+        // 画面外に出たら削除
+        if (p.y - p.radius > canvas.height) {
+            powerUps.splice(i, 1);
+            continue;
+        }
+
+        // プレイヤーとの衝突（円と矩形の簡易判定）
+        const closestX = Math.max(player.x, Math.min(p.x, player.x + player.width));
+        const closestY = Math.max(player.y, Math.min(p.y, player.y + player.height));
+        const dx = p.x - closestX;
+        const dy = p.y - closestY;
+        if (dx * dx + dy * dy < p.radius * p.radius) {
+            applyPowerUp(p.type);
+            powerUps.splice(i, 1);
+        }
+    }
+}
+
 // プレイヤーの移動
 function updatePlayer() {
     if (keys['ArrowLeft'] && player.x > 0) {
@@ -268,11 +340,32 @@ function updatePlayer() {
 
 // プレイヤーの弾丸発射
 function shootPlayerBullet() {
+    const baseX = player.x + player.width / 2 - 2.5;
+    const baseY = player.y;
+
+    // 中央の弾
     playerBullets.push({
-        x: player.x + player.width / 2 - 2.5,
-        y: player.y,
+        x: baseX,
+        y: baseY,
         speed: 7
     });
+
+    // パワーアップ中は3連射
+    if (activePowerUp === 'triple') {
+        playerBullets.push({
+            x: baseX - 10,
+            y: baseY,
+            speed: 7,
+            vx: -2
+        });
+        playerBullets.push({
+            x: baseX + 10,
+            y: baseY,
+            speed: 7,
+            vx: 2
+        });
+    }
+
     playShootSound();
 }
 
@@ -288,12 +381,31 @@ function shootEnemyBullet(enemy) {
     }
 }
 
+// 敵撃破時の処理
+function handleEnemyHit(enemy, bulletIndex) {
+    enemy.alive = false;
+    playerBullets.splice(bulletIndex, 1);
+
+    const centerX = enemy.x + enemy.width / 2;
+    const centerY = enemy.y + enemy.height / 2;
+
+    createParticles(centerX, centerY, enemy.color);
+    createExplosion(centerX, centerY);
+    playExplosionSound();
+    addScore(10);
+    spawnPowerUp(centerX, centerY);
+}
+
 // 弾丸の更新
 function updateBullets() {
     // プレイヤーの弾丸
     for (let i = playerBullets.length - 1; i >= 0; i--) {
         const bullet = playerBullets[i];
         bullet.y -= bullet.speed;
+
+        if (bullet.vx) {
+            bullet.x += bullet.vx;
+        }
         
         if (bullet.y < 0) {
             playerBullets.splice(i, 1);
@@ -311,13 +423,7 @@ function updateBullets() {
                 bullet.y + 15 > enemy.y) {
                 
                 // 敵を倒した
-                enemy.alive = false;
-                playerBullets.splice(i, 1);
-                score += 10;
-                createParticles(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color);
-                createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
-                playExplosionSound();
-                updateScore();
+                handleEnemyHit(enemy, i);
                 break;
             }
         }
@@ -344,6 +450,7 @@ function updateBullets() {
             createExplosion(player.x + player.width / 2, player.y + player.height / 2, 30);
             playHitSound();
             updateLives();
+            resetCombo();
             
             if (lives <= 0) {
                 gameOver();
@@ -399,15 +506,132 @@ function updateScore() {
     }
 }
 
+// スコア加算＆コンボ処理
+function addScore(base) {
+    const now = performance.now();
+    if (lastKillTime && now - lastKillTime < COMBO_RESET_TIME) {
+        comboCount++;
+    } else {
+        comboCount = 1;
+    }
+    lastKillTime = now;
+
+    comboMultiplier = Math.min(5, 1 + Math.floor((comboCount - 1) / 2));
+    score += base * comboMultiplier;
+
+    updateScore();
+    updateComboDisplay();
+}
+
+function resetCombo() {
+    comboCount = 0;
+    comboMultiplier = 1;
+    lastKillTime = 0;
+    updateComboDisplay();
+}
+
+function updateComboDisplay() {
+    const comboElement = document.getElementById('combo');
+    if (!comboElement) return;
+
+    comboElement.textContent = `x${comboMultiplier}`;
+
+    const header = document.querySelector('.header');
+    if (!header) return;
+
+    if (comboMultiplier > 1) {
+        header.classList.add('combo-active');
+    } else {
+        header.classList.remove('combo-active');
+    }
+}
+
 // 残機更新
 function updateLives() {
     document.getElementById('lives').textContent = lives;
+}
+
+// ハイスコア関連
+function loadHighScore() {
+    try {
+        const stored = localStorage.getItem(HIGH_SCORE_KEY);
+        if (stored !== null) {
+            const value = parseInt(stored, 10);
+            if (!isNaN(value)) {
+                highScore = value;
+            }
+        }
+    } catch (e) {
+        highScore = 0;
+    }
+    updateHighScoreDisplay();
+}
+
+function saveHighScore() {
+    try {
+        localStorage.setItem(HIGH_SCORE_KEY, String(highScore));
+    } catch (e) {
+        // 何もしない（プライベートモード等）
+    }
+}
+
+function updateHighScoreDisplay() {
+    const el = document.getElementById('highScore');
+    if (el) {
+        el.textContent = highScore;
+    }
+}
+
+function showNewRecord(isNew) {
+    const el = document.getElementById('newRecord');
+    if (!el) return;
+    if (isNew) {
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+}
+
+// パワーアップ状態表示
+function updatePowerUpStatus() {
+    const el = document.getElementById('powerUpStatus');
+    if (!el) return;
+
+    if (activePowerUp === 'triple') {
+        el.textContent = '3連射中';
+    } else {
+        el.textContent = 'なし';
+    }
+}
+
+// パワーアップ適用
+function applyPowerUp(type) {
+    if (type === 'triple') {
+        activePowerUp = 'triple';
+        powerUpEndTime = performance.now() + POWER_UP_DURATION;
+        updatePowerUpStatus();
+    }
+
+    createExplosion(player.x + player.width / 2, player.y, 40);
+    playPowerUpSound();
 }
 
 // ゲームオーバー
 function gameOver() {
     gameState = 'gameOver';
     document.getElementById('finalScore').textContent = score;
+
+    // ハイスコア更新チェック
+    let isNewRecord = false;
+    if (score > highScore) {
+        highScore = score;
+        saveHighScore();
+        updateHighScoreDisplay();
+        isNewRecord = true;
+    }
+    showNewRecord(isNewRecord);
+
+    resetCombo();
     document.getElementById('gameOver').classList.remove('hidden');
 }
 
@@ -422,12 +646,18 @@ function restartGame() {
     enemyBullets = [];
     particles = [];
     explosions = [];
+     powerUps = [];
+    activePowerUp = null;
+    powerUpEndTime = 0;
+    resetCombo();
+    updatePowerUpStatus();
     player.x = canvas.width / 2 - 25;
     initEnemies();
     updateScore();
     updateLives();
     document.getElementById('level').textContent = level;
     document.getElementById('gameOver').classList.add('hidden');
+    showNewRecord(false);
     document.getElementById('startScreen').classList.add('hidden');
 }
 
@@ -446,15 +676,30 @@ function gameLoop() {
     }
     
     if (gameState === 'playing') {
+        const now = performance.now();
+
+        // コンボの時間切れ
+        if (comboCount > 0 && lastKillTime && now - lastKillTime > COMBO_RESET_TIME) {
+            resetCombo();
+        }
+
+        // パワーアップの時間切れ
+        if (activePowerUp && now > powerUpEndTime) {
+            activePowerUp = null;
+            updatePowerUpStatus();
+        }
+
         updatePlayer();
         updateBullets();
         updateEnemies();
         updateParticles();
         updateExplosions();
+        updatePowerUps();
         
         drawPlayer();
         drawEnemies();
         drawBullets();
+        drawPowerUps();
     }
     
     requestAnimationFrame(gameLoop);
@@ -484,4 +729,9 @@ document.getElementById('restartBtn').addEventListener('click', restartGame);
 
 // ゲーム初期化
 initEnemies();
+updateScore();
+updateLives();
+loadHighScore();
+resetCombo();
+updatePowerUpStatus();
 gameLoop();

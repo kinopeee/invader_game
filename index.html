@@ -14,7 +14,10 @@
                 <div class="score">スコア: <span id="score">0</span></div>
                 <div class="lives">残機: <span id="lives">3</span></div>
                 <div class="level">レベル: <span id="level">1</span></div>
+                <div class="combo">コンボ: <span id="combo">x1</span></div>
+                <div class="high-score">ベスト: <span id="highScore">0</span></div>
             </div>
+            <div class="power-up-status">パワーアップ: <span id="powerUpStatus">なし</span></div>
         </div>
         <canvas id="gameCanvas"></canvas>
         <div class="controls">
@@ -23,11 +26,13 @@
         <div id="gameOver" class="game-over hidden">
             <h2>ゲームオーバー！</h2>
             <p>最終スコア: <span id="finalScore">0</span></p>
+            <p id="newRecord" class="new-record hidden">🎉 新記録！！ 🎉</p>
             <button id="restartBtn">もう一度プレイ</button>
         </div>
         <div id="startScreen" class="start-screen">
             <h2>ド派手インベーダーゲーム</h2>
             <p>スペースキーでスタート</p>
+            <p>コンボとパワーアップで高スコアを狙おう！</p>
         </div>
     </div>
     <script src="game.js"></script>
