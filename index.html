@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Retro Invaders</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="crt-overlay"></div>
+    <main class="game-shell">
+      <header class="game-header">
+        <h1 class="game-title">RETRO INVADERS</h1>
+        <p class="game-subtitle">昔ながらのアーケード風インベーダーゲーム</p>
+      </header>
+
+      <section class="hud">
+        <div class="hud-item">
+          <span class="hud-label">SCORE</span>
+          <span id="score" class="hud-value">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">LEVEL</span>
+          <span id="level" class="hud-value">1</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">LIVES</span>
+          <span id="lives" class="hud-value">3</span>
+        </div>
+      </section>
+
+      <section class="game-frame">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div id="overlay" class="overlay visible">
+          <div class="overlay-inner">
+            <h2 id="overlayTitle">Retro Invaders</h2>
+            <p id="overlaySubtitle">矢印キー / A・D で移動、スペースでショット</p>
+            <button id="overlayButton" class="primary-button">ゲームスタート</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="game-footer">
+        <p>操作: 左右移動 - ← → / A・D キー, ショット - スペース, 一時停止 - P</p>
+      </footer>
+    </main>
+
+    <script src="game.js" defer></script>
+  </body>
+</html>

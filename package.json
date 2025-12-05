@@ -1,0 +1,10 @@
+{
+  "name": "retro-invader-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A retro-style space invader browser game.",
+  "scripts": {},
+  "keywords": ["game", "canvas", "invaders", "arcade"],
+  "author": "",
+  "license": "MIT"
+}
