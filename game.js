@@ -32,6 +32,12 @@ const enemySpacing = 60;
 let enemyDirection = 1;
 let enemySpeed = 1;
 
+// UFO
+let ufo = null;
+let ufoSpawnTimer = 0;
+const ufoSpawnInterval = 30000; // 30秒ごとに出現
+const ufoSpeed = 2;
+
 // パーティクルエフェクト
 let particles = [];
 let explosions = [];
@@ -84,6 +90,20 @@ function playLevelUpSound() {
             playSound(300 + i * 100, 0.1, 'sine', 0.2);
         }, i * 50);
     }
+}
+
+function playUFOSpawnSound() {
+    // UFO出現音（神秘的な音）
+    playSound(200, 0.3, 'sine', 0.2);
+    setTimeout(() => playSound(250, 0.3, 'sine', 0.2), 100);
+    setTimeout(() => playSound(300, 0.3, 'sine', 0.2), 200);
+}
+
+function playUFODestroySound() {
+    // UFO撃破音（特別な音）
+    playSound(150, 0.2, 'sawtooth', 0.5);
+    setTimeout(() => playSound(100, 0.3, 'sawtooth', 0.4), 50);
+    setTimeout(() => playSound(50, 0.4, 'sawtooth', 0.3), 100);
 }
 
 // 敵の初期化
@@ -183,6 +203,36 @@ function drawEnemies() {
         
         ctx.shadowBlur = 0;
     });
+}
+
+// UFOの描画
+function drawUFO() {
+    if (!ufo) return;
+    
+    ctx.fillStyle = ufo.color;
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = ufo.color;
+    
+    // UFO本体（楕円形）
+    ctx.beginPath();
+    ctx.ellipse(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, ufo.width / 2, ufo.height / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // UFOのドーム部分
+    ctx.fillStyle = '#ffff00';
+    ctx.shadowColor = '#ffff00';
+    ctx.beginPath();
+    ctx.ellipse(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2 - 5, ufo.width / 3, ufo.height / 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // UFOの光るエフェクト
+    ctx.strokeStyle = ufo.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, ufo.width / 2 + 5, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    ctx.shadowBlur = 0;
 }
 
 // 弾丸の描画
@@ -321,6 +371,23 @@ function updateBullets() {
                 break;
             }
         }
+        
+        // UFOとの衝突判定
+        if (ufo && bullet.x < ufo.x + ufo.width &&
+            bullet.x + 5 > ufo.x &&
+            bullet.y < ufo.y + ufo.height &&
+            bullet.y + 15 > ufo.y) {
+            
+            // UFOを撃破
+            const points = ufo.points;
+            score += points;
+            createParticles(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, ufo.color, 50);
+            createExplosion(ufo.x + ufo.width / 2, ufo.y + ufo.height / 2, 80);
+            playUFODestroySound();
+            ufo = null;
+            playerBullets.splice(i, 1);
+            updateScore();
+        }
     }
     
     // 敵の弾丸
@@ -385,6 +452,49 @@ function updateEnemies() {
     }
 }
 
+// UFOの出現
+function spawnUFO() {
+    if (ufo) return; // 既にUFOが存在する場合は出現しない
+    
+    // ランダムな方向から出現（左から右、または右から左）
+    const direction = Math.random() < 0.5 ? 1 : -1;
+    const startX = direction === 1 ? -80 : canvas.width + 80;
+    
+    ufo = {
+        x: startX,
+        y: 30,
+        width: 80,
+        height: 30,
+        speed: ufoSpeed * direction,
+        color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+        points: Math.floor(Math.random() * 3 + 1) * 100 // 100, 200, 300のいずれか
+    };
+    
+    playUFOSpawnSound();
+}
+
+// UFOの更新
+function updateUFO() {
+    if (!ufo) {
+        // UFOが存在しない場合、タイマーを更新
+        ufoSpawnTimer++;
+        if (ufoSpawnTimer >= ufoSpawnInterval) {
+            spawnUFO();
+            ufoSpawnTimer = 0;
+        }
+        return;
+    }
+    
+    // UFOの移動
+    ufo.x += ufo.speed;
+    
+    // 画面外に出たら削除
+    if ((ufo.speed > 0 && ufo.x > canvas.width + 80) || 
+        (ufo.speed < 0 && ufo.x < -80)) {
+        ufo = null;
+    }
+}
+
 // スコア更新
 function updateScore() {
     document.getElementById('score').textContent = score;
@@ -422,6 +532,8 @@ function restartGame() {
     enemyBullets = [];
     particles = [];
     explosions = [];
+    ufo = null;
+    ufoSpawnTimer = 0;
     player.x = canvas.width / 2 - 25;
     initEnemies();
     updateScore();
@@ -449,11 +561,13 @@ function gameLoop() {
         updatePlayer();
         updateBullets();
         updateEnemies();
+        updateUFO();
         updateParticles();
         updateExplosions();
         
         drawPlayer();
         drawEnemies();
+        drawUFO();
         drawBullets();
     }
     
