@@ -1,0 +1,133 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(to bottom, #000000, #1a0033);
+    color: #00ff00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.game-container {
+    text-align: center;
+    max-width: 800px;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.5em;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+    margin-bottom: 15px;
+    color: #00ff00;
+}
+
+.info {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0, 255, 0, 0.1);
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 1.2em;
+}
+
+.score-display, .lives-display, .level-display {
+    font-weight: bold;
+}
+
+#gameCanvas {
+    border: 3px solid #00ff00;
+    background: #000000;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    display: block;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+
+.controls {
+    margin-top: 20px;
+    background: rgba(0, 255, 0, 0.1);
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.game-over, .start-screen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.95);
+    border: 3px solid #00ff00;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
+    z-index: 1000;
+}
+
+.game-over h2, .start-screen h2 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+.game-over p, .start-screen p {
+    font-size: 1.5em;
+    margin-bottom: 30px;
+}
+
+button {
+    background: #00ff00;
+    color: #000000;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+button:hover {
+    background: #00cc00;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 850px) {
+    #gameCanvas {
+        width: 100%;
+        height: auto;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    .info {
+        font-size: 1em;
+    }
+}
